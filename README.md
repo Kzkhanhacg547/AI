@@ -38,8 +38,8 @@ Linh Đan là một AI trò chuyện được xây dựng bằng Node.js và HTM
 ### Bước cài đặt:  
 1. **Clone dự án**:  
    ```bash
-   git clone https://github.com/username/linhdan-ai.git
-   cd linhdan-ai
+   git clone https://github.com/Kzkhanhacg547/AI.git
+   cd AI
    ```
 2. **Cài đặt các gói phụ thuộc**:  
    ```bash
