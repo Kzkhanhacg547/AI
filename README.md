@@ -1,7 +1,7 @@
 # 🌟 **Linh Đan AI Chatbot** 🌟  
 ✨ **Người bạn ảo thông minh - Trải nghiệm giao tiếp mới mẻ!** ✨  
 
-![Linh Đan AI](https://via.placeholder.com/1000x300?text=Linh+Đan+AI)  
+![Linh Đan AI](<blockquote class="imgur-embed-pub" lang="en" data-id="a/CTp8FWG" data-context="false" ><a href="//imgur.com/a/CTp8FWG"></a></blockquote><script async src="//s.imgur.com/min/embed.js" charset="utf-8"></script>)  
 
 ---
 
