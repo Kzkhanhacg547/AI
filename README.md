@@ -56,7 +56,7 @@ Linh Đan là một AI trò chuyện được xây dựng bằng Node.js và HTM
 
 ## 🎨 **Hình ảnh giao diện**  
 
-![Giao diện Linh Đan](https://via.placeholder.com/800x400?text=Demo+Giao+Diện)  
+![Giao diện Linh Đan](https://imgur.com/YUDhOJd)  
 
 ---
 
