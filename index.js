@@ -13,8 +13,8 @@ app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
 // Google AI Configuration
-const MODEL_NAME = "gemini-pro";
-const API_KEY = "AIzaSyCbnHX0y_KAjLzttCTGYEBTlhO2Q6HldBI";
+const MODEL_NAME = "gemini-2.0-flash"; // Updated model name
+const API_KEY = "AIzaSyCdueVy6lZP88ZhJbUmUaFoPNGUIWvtQDk";
 
 const genAI = new GoogleGenerativeAI(API_KEY);
 
@@ -55,14 +55,10 @@ app.post("/chat", async (req, res) => {
       safetySettings,
     });
 
-    const chat = model.startChat({
-      history: [],
-      generationConfig: { ...generationConfig, maxOutputTokens: 1000 },
-    });
+    // Changed approach to use the model directly instead of chat session
+    const prompt = personalityPrompt + "\n\nUser: " + message;
 
-    const result = await chat.sendMessage(
-      personalityPrompt + "\n\nUser: " + message
-    );
+    const result = await model.generateContent(prompt);
     const response = result.response.text().trim();
 
     // Chỉnh sửa để xuống dòng hợp lý
