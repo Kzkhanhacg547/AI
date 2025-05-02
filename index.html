@@ -64,6 +64,19 @@
         );
         border-left: 4px solid var(--secondary-color);
         border-radius: 8px;
+        line-height: 1.5;
+        max-width: 80% !important; /* Mở rộng không gian cho tin nhắn AI */
+      }
+
+      .ai-message strong {
+        color: #7fc3ff;
+        font-weight: 600;
+      }
+
+      .ai-message br {
+        display: block;
+        margin-top: 0.5rem;
+        content: "";
       }
 
       #message-input {
@@ -452,11 +465,29 @@
         }
 
         function typeEffect(element, text, index = 0) {
-          if (index < text.length) {
-            element.innerHTML += text.charAt(index);
+          // Chuyển đổi text sang HTML trước khi thực hiện hiệu ứng đánh chữ
+          if (index === 0) {
+            // Xử lý định dạng trước
+            text = text.replace(/\n/g, "<br>");
+            text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+
+            // Lưu trữ HTML đã xử lý
+            element.dataset.fullText = text;
+            element.innerHTML = "";
+          }
+
+          // Lấy nội dung HTML đã được xử lý
+          const fullText = element.dataset.fullText;
+
+          if (index < fullText.length) {
+            // Thêm từng ký tự một vào element
+            element.innerHTML = fullText.substring(0, index + 1);
             setTimeout(() => typeEffect(element, text, index + 1), 20);
           } else {
-            // Add blinking cursor
+            // Hiển thị toàn bộ nội dung khi kết thúc
+            element.innerHTML = fullText;
+
+            // Thêm con trỏ nhấp nháy nếu cần
             const cursor = document.createElement("span");
             cursor.className = "terminal-cursor";
             element.appendChild(cursor);
@@ -473,6 +504,32 @@
           if ("vibrate" in navigator) {
             navigator.vibrate(50); // Rung 50ms
           }
+        }
+
+        function appendMessage(text, sender) {
+          const messageDiv = document.createElement("div");
+          messageDiv.classList.add(
+            "message",
+            `${sender}-message`,
+            "p-3",
+            "max-w-xs",
+            sender === "user" ? "ml-auto" : "mr-auto",
+            "break-words"
+          );
+
+          // Xử lý định dạng Markdown và xuống dòng nếu là tin nhắn AI
+          if (sender === "ai" && text) {
+            // Xử lý xuống dòng - giữ nguyên xuống dòng từ tin nhắn
+            text = text.replace(/\n/g, "<br>");
+
+            // Xử lý định dạng in đậm với **text**
+            text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
+          }
+
+          messageDiv.innerHTML = text;
+          chatMessages.appendChild(messageDiv);
+          chatMessages.scrollTop = chatMessages.scrollHeight;
+          return messageDiv;
         }
 
         function sendMessage() {
@@ -508,26 +565,6 @@
                 "NEURAL TRANSMISSION FAILED. RETRY PROTOCOL."
               );
             });
-        }
-
-        function appendMessage(text, sender) {
-          const messageDiv = document.createElement("div");
-          messageDiv.classList.add(
-            "message",
-            `${sender}-message`,
-            "p-3",
-            "max-w-xs",
-            sender === "user" ? "ml-auto" : "mr-auto",
-            "break-words"
-          );
-
-          // Support bold text without special characters
-          text = text.replace(/\[b\](.*?)\[\/b\]/g, "<strong>$1</strong>");
-
-          messageDiv.innerHTML = text;
-          chatMessages.appendChild(messageDiv);
-          chatMessages.scrollTop = chatMessages.scrollHeight;
-          return messageDiv;
         }
 
         // Event Listeners
