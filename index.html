@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="vi">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Neural Protocol X</title>
+    <title>Trò chuyện với Linh Đan</title>
     <link
       href="https://cdnjs.cloudflare.com/ajax/libs/tailwindcss/2.2.19/tailwind.min.css"
       rel="stylesheet"
@@ -14,483 +14,230 @@
     />
     <style>
       :root {
-        --primary-color: #6a11cb;
-        --secondary-color: #2575fc;
-        --background-dark: #0f0f1a;
-        --text-light: #e6e6e6;
+        --primary-color: #ff6b9d;
+        --secondary-color: #ffb3c6;
+        --background-light: #fff9fc;
+        --text-dark: #333333;
+        --chat-bg: #fff;
+        --message-sent: #e1f5fe;
+        --message-received: #fce4ec;
       }
 
       body {
-        background: linear-gradient(135deg, var(--background-dark), #1a1a2e);
-        font-family: "Inter", sans-serif;
-        color: var(--text-light);
+        background-color: var(--background-light);
+        font-family: "Segoe UI", Roboto, "Helvetica Neue", sans-serif;
+        color: var(--text-dark);
         overflow-x: hidden;
       }
 
-      .neural-container {
-        background: rgba(26, 26, 46, 0.8);
-        border: 2px solid var(--primary-color);
-        box-shadow: 0 10px 50px rgba(106, 17, 203, 0.3);
-        backdrop-filter: blur(15px);
+      .chat-container {
+        background: var(--chat-bg);
+        border-radius: 12px;
+        box-shadow: 0 5px 25px rgba(0, 0, 0, 0.1);
         transition: all 0.3s ease;
       }
 
-      .neural-container:hover {
-        transform: scale(1.02);
+      .chat-header {
+        background: linear-gradient(to right, #ff6b9d, #ffb3c6);
+        border-radius: 12px 12px 0 0;
+      }
+
+      .avatar {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 2px solid white;
       }
 
       #chat-messages {
-        background: rgba(15, 15, 26, 0.7);
-        border-radius: 10px;
+        background: var(--background-light);
+        border-radius: 0;
         scrollbar-width: thin;
-        scrollbar-color: var(--primary-color) transparent;
+        scrollbar-color: var(--secondary-color) transparent;
       }
 
       .user-message {
-        background: linear-gradient(
-          to right,
-          rgba(106, 17, 203, 0.2),
-          rgba(37, 117, 252, 0.2)
-        );
-        border-left: 4px solid var(--primary-color);
-        border-radius: 8px;
+        background: var(--message-sent);
+        border-radius: 18px 18px 4px 18px;
+        color: var(--text-dark);
+        max-width: 70%;
+        align-self: flex-end;
+        word-break: break-word;
       }
 
       .ai-message {
-        background: linear-gradient(
-          to right,
-          rgba(37, 117, 252, 0.2),
-          rgba(106, 17, 203, 0.2)
-        );
-        border-left: 4px solid var(--secondary-color);
-        border-radius: 8px;
-        line-height: 1.5;
-        max-width: 80% !important; /* Mở rộng không gian cho tin nhắn AI */
+        background: var(--message-received);
+        border-radius: 18px 18px 18px 4px;
+        color: var(--text-dark);
+        max-width: 70%;
+        align-self: flex-start;
+        word-break: break-word;
       }
 
       .ai-message strong {
-        color: #7fc3ff;
+        color: #e91e63;
         font-weight: 600;
       }
 
-      .ai-message br {
-        display: block;
-        margin-top: 0.5rem;
-        content: "";
+      .chat-input-container {
+        background-color: white;
+        border-radius: 0 0 12px 12px;
+        border-top: 1px solid #f0f0f0;
       }
 
       #message-input {
-        background: rgba(106, 17, 203, 0.1);
-        border: 1px solid var(--primary-color);
-        color: var(--text-light);
+        background: white;
+        border: 1px solid #e0e0e0;
+        color: var(--text-dark);
         transition: all 0.3s ease;
+        border-radius: 20px;
       }
 
       #message-input:focus {
         outline: none;
-        box-shadow: 0 0 15px rgba(106, 17, 203, 0.5);
+        border-color: var(--primary-color);
+        box-shadow: 0 0 5px rgba(255, 107, 157, 0.3);
       }
 
       #send-btn {
-        background: linear-gradient(
-          to right,
-          var(--primary-color),
-          var(--secondary-color)
-        );
+        background: var(--primary-color);
         color: white;
         transition: all 0.3s ease;
+        border-radius: 50%;
+        width: 40px;
+        height: 40px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
       }
 
       #send-btn:hover {
-        transform: translateY(-3px);
-        box-shadow: 0 7px 20px rgba(106, 17, 203, 0.4);
+        background: #e91e63;
+        transform: scale(1.05);
       }
 
-      .status-indicator {
-        display: flex;
-        align-items: center;
+      .typing-indicator {
+        color: #666;
+        font-style: italic;
+        font-size: 0.85rem;
       }
 
-      .status-dot {
-        width: 10px;
-        height: 10px;
-        border-radius: 50%;
-        margin-right: 8px;
-      }
-
-      .status-dot.connected {
-        background: #2ecc71;
-        animation: pulse 1.5s infinite;
-      }
-
-      .status-dot.disconnected {
-        background: #e74c3c;
-      }
-
-      @keyframes pulse {
-        0% {
-          transform: scale(1);
-        }
-        50% {
-          transform: scale(1.2);
-        }
-        100% {
-          transform: scale(1);
-        }
-      }
-
-      .encryption-meter {
-        background: linear-gradient(to right, #e74c3c, #f39c12, #2ecc71);
-        transition: width 0.5s ease;
-        border-radius: 5px;
-      }
-
-      .feature-panel {
-        background: rgba(26, 26, 46, 0.6);
-        border: 1px solid var(--secondary-color);
-        border-radius: 10px;
-        transition: all 0.3s ease;
-      }
-
-      .feature-panel:hover {
-        transform: translateY(-5px);
-        box-shadow: 0 10px 25px rgba(37, 117, 252, 0.2);
+      .message-time {
+        font-size: 0.7rem;
+        color: #888;
+        margin-top: 2px;
       }
 
       /* Mobile Responsive Styles */
-      /* Mobile and Responsive Adjustments */
       @media (max-width: 768px) {
-        body {
-          padding: 0;
-        }
-
-        .neural-container {
-          flex-direction: column;
-          max-width: 100%;
-          height: auto;
+        .chat-container {
+          height: 100vh;
           border-radius: 0;
           margin: 0;
         }
 
-        .neural-container > div {
-          width: 100% !important;
-          border-left: none !important;
-          border-top: none;
-          padding: 1rem;
-        }
-
-        /* Chat Section Styles */
         .chat-header {
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-        }
-
-        .chat-header h1 {
-          font-size: 1.5rem;
-          margin-bottom: 1rem;
-        }
-
-        .status-indicator {
-          margin-top: 10px;
-        }
-
-        #chat-messages {
-          height: 50vh;
-          max-height: 400px;
-        }
-
-        .chat-input {
-          flex-direction: column;
-        }
-
-        textarea#message-input {
-          width: 100%;
-          border-radius: 10px;
-          margin-bottom: 10px;
-        }
-
-        #send-btn {
-          width: 100%;
-          border-radius: 10px;
-        }
-
-        /* Feature Panel Section Adjustments */
-        .feature-panel-container {
-          display: flex;
-          flex-direction: column;
-          overflow-x: visible;
-          padding: 10px 0;
-        }
-
-        .feature-panel {
-          width: 100%;
-          margin-bottom: 1rem;
-        }
-      }
-
-      /* Mobile and Responsive Adjustments */
-      @media (max-width: 768px) {
-        body {
-          padding: 0;
-        }
-
-        .neural-container {
-          flex-direction: column;
-          max-width: 100%;
-          height: auto;
           border-radius: 0;
-          margin: 0;
-        }
-
-        .neural-container > div {
-          width: 100% !important;
-          border-left: none !important;
-          border-top: none;
-          padding: 1rem;
-        }
-
-        /* Chat Section Styles */
-        .chat-header {
-          flex-direction: column;
-          align-items: center;
-          text-align: center;
-        }
-
-        .chat-header h1 {
-          font-size: 1.5rem;
-          margin-bottom: 1rem;
-        }
-
-        .status-indicator {
-          margin-top: 10px;
         }
 
         #chat-messages {
-          height: 50vh;
-          max-height: 400px;
-        }
-
-        .chat-input {
-          flex-direction: column;
-        }
-
-        textarea#message-input {
-          width: 100%;
-          border-radius: 10px;
-          margin-bottom: 10px;
-        }
-
-        #send-btn {
-          width: 100%;
-          border-radius: 10px;
-        }
-
-        /* Feature Panel Section Adjustments */
-        .feature-panel-container {
-          display: flex;
-          flex-direction: column;
-          overflow-x: visible;
-          padding: 10px 0;
-        }
-
-        .feature-panel {
-          width: 100%;
-          margin-bottom: 1rem;
+          height: calc(100vh - 130px);
         }
       }
 
-      /* Desktop and Larger Screens */
-      @media (min-width: 769px) {
-        .neural-container {
-          display: flex;
-          max-width: 1200px;
-          height: 95vh;
+      /* Animation for messages */
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(10px);
         }
-
-        .neural-container > div:first-child {
-          width: 75%;
-          border-right: 1px solid rgba(106, 17, 203, 0.2);
-        }
-
-        .neural-container > div:last-child {
-          width: 25%;
-          border-left: 1px solid rgba(37, 117, 252, 0.2);
-        }
-
-        #chat-messages {
-          height: 60vh;
-        }
-
-        .chat-input {
-          flex-direction: row;
-        }
-
-        textarea#message-input {
-          width: calc(100% - 150px);
-          margin-right: 10px;
-          border-radius: 10px 0 0 10px;
-        }
-
-        #send-btn {
-          width: 140px;
-          border-radius: 0 10px 10px 0;
-        }
-
-        .feature-panel-container {
-          display: block;
-        }
-
-        .feature-panel {
-          width: 100%;
-          margin-bottom: 1rem;
+        to {
+          opacity: 1;
+          transform: translateY(0);
         }
       }
 
-      /* Additional Mobile Responsiveness Tweaks */
-      @media (max-width: 480px) {
-        .neural-container {
-          padding: 0.5rem;
-        }
-
-        .chat-header h1 {
-          font-size: 1.25rem;
-        }
-
-        #chat-messages {
-          height: 40vh;
-          padding: 0.5rem;
-        }
-
-        textarea#message-input,
-        #send-btn {
-          font-size: 0.875rem;
-          padding: 0.75rem;
-        }
+      .message {
+        animation: fadeIn 0.3s ease-out;
       }
     </style>
   </head>
-  <body class="min-h-screen flex items-center justify-center p-4">
+  <body class="h-screen flex items-center justify-center p-0 sm:p-4">
     <div
-      class="neural-container w-full max-w-4xl rounded-xl overflow-hidden relative flex"
+      class="chat-container w-full max-w-md h-full sm:h-[600px] flex flex-col"
     >
-      <div class="w-3/4 p-6 md:w-full">
-        <div
-          class="chat-header mb-4 flex justify-between items-center flex-col md:flex-row"
-        >
-          <h1
-            class="text-3xl font-bold tracking-wide uppercase bg-clip-text text-transparent bg-gradient-to-r from-purple-600 to-blue-500 mb-2 md:mb-0"
-          >
-            Neural Protocol X
-          </h1>
-          <div class="status-indicator">
-            <div class="status-dot connected"></div>
-            <span>Connected</span>
-          </div>
-        </div>
-        <div class="encryption-meter mb-2 w-full" id="encryption-level"></div>
-        <div
-          id="chat-messages"
-          class="h-96 overflow-y-auto p-4 space-y-3"
-        ></div>
-        <div class="typing-indicator text-center p-2 italic">
-          Establishing neural link...
-        </div>
-        <div class="chat-input mt-4 flex flex-col md:flex-row items-center">
-          <textarea
-            id="message-input"
-            placeholder="ENTER NEURAL COMMAND"
-            rows="3"
-            class="flex-grow p-3 rounded-xl md:rounded-l-xl uppercase tracking-wider w-full mb-2 md:mb-0 md:mr-2"
-          ></textarea>
-          <button
-            id="send-btn"
-            class="px-6 py-3 rounded-xl font-bold uppercase tracking-wider w-full md:w-auto"
-          >
-            TRANSMIT
-          </button>
+      <!-- Chat Header -->
+      <div class="chat-header p-3 flex items-center">
+        <img
+          src="https://i.imgur.com/00PDxHB.png"
+          alt="Linh Đan"
+          class="avatar mr-3"
+          onerror="this.src='https://i.imgur.com/00PDxHB.png'"
+        />
+        <div>
+          <h2 class="text-white font-semibold">Linh Đan</h2>
+          <div class="text-white text-xs opacity-80">Đang hoạt động</div>
         </div>
       </div>
+
+      <!-- Chat Messages -->
       <div
-        class="w-1/4 p-4 border-l border-purple-800 md:w-full md:border-l-0 md:border-t"
-      >
-        <div
-          class="feature-panel-container flex md:flex-wrap md:overflow-x-visible overflow-x-auto"
-        >
-          <div class="feature-panel p-4 mb-4 md:mr-4">
-            <h3 class="text-lg font-semibold mb-2">
-              <i class="ri-shield-star-line mr-2"></i>Security Level
-            </h3>
-            <div class="text-sm text-gray-400">Quantum Encryption Active</div>
-          </div>
-          <div class="feature-panel p-4 mb-4 md:mr-4">
-            <h3 class="text-lg font-semibold mb-2">
-              <i class="ri-pulse-line mr-2"></i>Connection Stats
-            </h3>
-            <div class="text-sm">
-              <div>Latency: 12ms</div>
-              <div>Bandwidth: 99.9%</div>
-            </div>
-          </div>
-          <div class="feature-panel p-4">
-            <h3 class="text-lg font-semibold mb-2">
-              <i class="ri-database-2-line mr-2"></i>Session Data
-            </h3>
-            <div class="text-sm text-gray-400">
-              Messages: <span id="message-count">0</span>
-            </div>
-          </div>
-        </div>
+        id="chat-messages"
+        class="flex-1 overflow-y-auto p-4 flex flex-col space-y-3"
+      ></div>
+
+      <!-- Typing Indicator -->
+      <div class="typing-indicator px-4 py-1 text-center hidden">
+        Linh Đan đang nhập...
+      </div>
+
+      <!-- Chat Input -->
+      <div class="chat-input-container p-3 flex items-center">
+        <textarea
+          id="message-input"
+          placeholder="Nhắn tin với Linh Đan..."
+          rows="1"
+          class="flex-grow p-3 mr-2"
+        ></textarea>
+        <button id="send-btn">
+          <i class="ri-send-plane-fill"></i>
+        </button>
       </div>
     </div>
 
     <script>
-      // Neural Protocol V2 Complete Script
-
       document.addEventListener("DOMContentLoaded", () => {
         const messageInput = document.getElementById("message-input");
         const sendBtn = document.getElementById("send-btn");
         const chatMessages = document.getElementById("chat-messages");
         const typingIndicator = document.querySelector(".typing-indicator");
-        const encryptionLevel = document.getElementById("encryption-level");
-        const messageCountDisplay = document.getElementById("message-count");
 
         let messageCounter = 0;
-        let securityLevel = 0;
 
-        function updateSecurityLevel() {
-          securityLevel = Math.min(messageCounter * 5, 100);
-          encryptionLevel.style.width = `${securityLevel}%`;
-          messageCountDisplay.textContent = messageCounter;
+        function getCurrentTime() {
+          const now = new Date();
+          return now.toLocaleTimeString([], {
+            hour: "2-digit",
+            minute: "2-digit",
+          });
         }
 
         function typeEffect(element, text, index = 0) {
-          // Chuyển đổi text sang HTML trước khi thực hiện hiệu ứng đánh chữ
           if (index === 0) {
-            // Xử lý định dạng trước
             text = text.replace(/\n/g, "<br>");
             text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
-
-            // Lưu trữ HTML đã xử lý
             element.dataset.fullText = text;
             element.innerHTML = "";
           }
 
-          // Lấy nội dung HTML đã được xử lý
           const fullText = element.dataset.fullText;
 
           if (index < fullText.length) {
-            // Thêm từng ký tự một vào element
             element.innerHTML = fullText.substring(0, index + 1);
             setTimeout(() => typeEffect(element, text, index + 1), 20);
           } else {
-            // Hiển thị toàn bộ nội dung khi kết thúc
             element.innerHTML = fullText;
-
-            // Thêm con trỏ nhấp nháy nếu cần
-            const cursor = document.createElement("span");
-            cursor.className = "terminal-cursor";
-            element.appendChild(cursor);
           }
         }
 
@@ -502,7 +249,7 @@
 
         function vibrateOnSend() {
           if ("vibrate" in navigator) {
-            navigator.vibrate(50); // Rung 50ms
+            navigator.vibrate(50);
           }
         }
 
@@ -512,21 +259,25 @@
             "message",
             `${sender}-message`,
             "p-3",
-            "max-w-xs",
-            sender === "user" ? "ml-auto" : "mr-auto",
+            "my-1",
             "break-words"
           );
 
-          // Xử lý định dạng Markdown và xuống dòng nếu là tin nhắn AI
           if (sender === "ai" && text) {
-            // Xử lý xuống dòng - giữ nguyên xuống dòng từ tin nhắn
             text = text.replace(/\n/g, "<br>");
-
-            // Xử lý định dạng in đậm với **text**
             text = text.replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>");
           }
 
-          messageDiv.innerHTML = text;
+          const messageContent = document.createElement("div");
+          messageContent.innerHTML = text;
+          messageDiv.appendChild(messageContent);
+
+          // Add timestamp
+          const timeSpan = document.createElement("div");
+          timeSpan.classList.add("message-time");
+          timeSpan.textContent = getCurrentTime();
+          messageDiv.appendChild(timeSpan);
+
           chatMessages.appendChild(messageDiv);
           chatMessages.scrollTop = chatMessages.scrollHeight;
           return messageDiv;
@@ -538,33 +289,34 @@
 
           appendMessage(message, "user");
           messageInput.value = "";
-          typingIndicator.style.display = "block";
+          messageInput.style.height = "auto";
+          typingIndicator.classList.remove("hidden");
           messageCounter++;
-          updateSecurityLevel();
           vibrateOnSend();
 
-          fetch("/chat", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ message }),
-          })
-            .then((response) => response.json())
-            .then((data) => {
-              setTimeout(() => {
-                typingIndicator.style.display = "none";
-                const aiMessageDiv = appendMessage("", "ai");
-                typeEffect(aiMessageDiv, sanitizeHTML(data.reply));
-              }, 800);
+          // Simulate server response
+          setTimeout(() => {
+            typingIndicator.classList.add("hidden");
+            const aiMessageDiv = appendMessage("", "ai");
+
+            // Replace with your actual API call
+            fetch("/chat", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ message }),
             })
-            .catch((error) => {
-              console.error("Error:", error);
-              typingIndicator.style.display = "none";
-              const errorMessageDiv = appendMessage("", "ai");
-              typeEffect(
-                errorMessageDiv,
-                "NEURAL TRANSMISSION FAILED. RETRY PROTOCOL."
-              );
-            });
+              .then((response) => response.json())
+              .then((data) => {
+                typeEffect(aiMessageDiv.firstChild, sanitizeHTML(data.reply));
+              })
+              .catch((error) => {
+                console.error("Error:", error);
+                typeEffect(
+                  aiMessageDiv.firstChild,
+                  "Có lỗi xảy ra. Xin thử lại."
+                );
+              });
+          }, 800);
         }
 
         // Event Listeners
@@ -577,76 +329,21 @@
           }
         });
 
-        // Additional Keyboard Shortcuts
-        document.addEventListener("keydown", (e) => {
-          // Ctrl + Enter to send message
-          if (e.ctrlKey && e.key === "Enter") {
-            messageInput.value += "\n";
-          }
-
-          // Escape to clear input
-          if (e.key === "Escape") {
-            messageInput.value = "";
-          }
-        });
-
         // Auto-resize textarea
         messageInput.addEventListener("input", function () {
           this.style.height = "auto";
-          this.style.height = this.scrollHeight + "px";
+          this.style.height = Math.min(this.scrollHeight, 100) + "px";
         });
 
-        // Detect Idle State
-        let idleTimer;
-        function resetIdleTimer() {
-          clearTimeout(idleTimer);
-          idleTimer = setTimeout(() => {
-            appendMessage("Neural link idle. Maintaining connection...", "ai");
-          }, 5 * 60 * 1000); // 5 minutes
-        }
-
-        // Reset idle timer on user activity
-        ["mousemove", "keypress", "scroll", "click"].forEach((evt) =>
-          document.addEventListener(evt, resetIdleTimer)
-        );
-
-        // Initial setup
-        updateSecurityLevel();
-        resetIdleTimer();
+        // Greet user
+        setTimeout(() => {
+          const aiMessageDiv = appendMessage("", "ai");
+          typeEffect(
+            aiMessageDiv.firstChild,
+            "Xin chào! Mình là Linh Đan. Bạn muốn trò chuyện về điều gì hôm nay? 😊"
+          );
+        }, 500);
       });
-
-      // Additional Utilities (Optional)
-      function copyToClipboard(text) {
-        navigator.clipboard
-          .writeText(text)
-          .then(() => {
-            alert("Message copied to clipboard");
-          })
-          .catch((err) => {
-            console.error("Failed to copy: ", err);
-          });
-      }
-
-      function downloadChatHistory() {
-        const messages = document.querySelectorAll("#chat-messages .message");
-        const chatHistory = Array.from(messages)
-          .map(
-            (msg) =>
-              `${msg.classList.contains("user-message") ? "You" : "AI"}: ${
-                msg.textContent
-              }`
-          )
-          .join("\n");
-
-        const blob = new Blob([chatHistory], { type: "text/plain" });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement("a");
-        a.href = url;
-        a.download = `neural_protocol_chat_${new Date().toISOString()}.txt`;
-        a.click();
-        URL.revokeObjectURL(url);
-      }
     </script>
   </body>
 </html>
