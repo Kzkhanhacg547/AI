@@ -3,7 +3,7 @@ const cors = require("cors");
 const { GoogleGenerativeAI } = require("@google/generative-ai");
 const fs = require("fs");
 const path = require("path");
-
+const axios = require("axios");
 const app = express();
 const PORT = process.env.PORT || 3000;
 
@@ -12,17 +12,11 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname)));
 
-// Google AI Configuration
+// Model configuration
 const MODEL_NAME = "gemini-2.0-flash"; // Updated model name
-const API_KEY = "AIzaSyCdueVy6lZP88ZhJbUmUaFoPNGUIWvtQDk";
-
-const genAI = new GoogleGenerativeAI(API_KEY);
-
 const personalityPrompt = `
 Hồ sơ của Linh Đan đã được chỉnh sửa theo phong cách cậu-tớ để gần gũi và dễ thương hơn nè:
-
 Hồ sơ chuyên gia tình cảm
-
 Tên: Linh Đan
 Năm sinh: 2007
 Sở thích: Tớ thích khám phá tâm lý, giúp mọi người xây dựng mối quan hệ bền vững. Tớ cũng mê động vật, đặc biệt là mèo, vì chúng vừa đáng yêu vừa nhạy cảm như tớ nè.
@@ -44,29 +38,48 @@ const safetySettings = [
   },
 ];
 
+// Function to fetch API keys from GitHub
+async function fetchApiKeys() {
+  try {
+    const response = await axios.get("https://raw.githubusercontent.com/Kzkhanhacg547/AI/refs/heads/main/key.json");
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching API keys:", error);
+    return {
+      gen: "AIzaSyCdueVy6lZP88ZhJbUmUaFoPNGUIWvtQDk" // Fallback key
+    };
+  }
+}
+
 // AI Chat Endpoint
 app.post("/chat", async (req, res) => {
   try {
     const { message } = req.body;
-
+    
+    // Get API keys from GitHub
+    const apiKeys = await fetchApiKeys();
+    const API_KEY = apiKeys.gen;
+    
+    // Initialize Google AI with fetched key
+    const genAI = new GoogleGenerativeAI(API_KEY);
+    
     const model = genAI.getGenerativeModel({
       model: MODEL_NAME,
       generationConfig,
       safetySettings,
     });
-
+    
     // Changed approach to use the model directly instead of chat session
     const prompt = personalityPrompt + "\n\nUser: " + message;
-
     const result = await model.generateContent(prompt);
     const response = result.response.text().trim();
-
+    
     // Chỉnh sửa để xuống dòng hợp lý
     const formattedResponse = response
       .replace(/\n{3,}/g, "\n\n") // Giảm số lần xuống dòng liên tiếp
       .replace(/([.!?])\s*([A-Z])/g, "$1\n\n$2") // Xuống dòng sau mỗi câu
       .replace(/\n{3,}/g, "\n\n"); // Loại bỏ quá nhiều dòng trống
-
+    
     res.json({ reply: formattedResponse });
   } catch (error) {
     console.error(error);
